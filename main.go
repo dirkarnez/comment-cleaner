@@ -28,8 +28,17 @@ func pushCommentToRight(line string, width int) string {
 		if strings.HasPrefix(codePart, "\t") {
 			re := regexp.MustCompile("\t+")
 			tabPrefixOccurance := len(re.FindString(codePart))
-			// codePart = fmt.Sprintf("%s%s", strings.Repeat(" ", tabPrefixOccurance*4), strings.TrimLeft(codePart, "\t"))
 			lineLength = lineLength + (tabPrefixOccurance * 7)
+			// codePart = fmt.Sprintf("%s%s", strings.Repeat(" ", tabPrefixOccurance*4), strings.TrimLeft(codePart, "\t"))
+		}
+
+		if strings.Contains(strings.TrimPrefix(codePart, "\t"), "\t") {
+			re := regexp.MustCompile("\t+")
+			for _, item := range re.FindAllString(strings.TrimPrefix(codePart, "\t"), -1) {
+				tabPrefixOccurance := len(item)
+				lineLength = lineLength + (tabPrefixOccurance * 5)
+			}
+			// codePart = fmt.Sprintf("%s%s", strings.Repeat(" ", tabPrefixOccurance*4), strings.TrimLeft(codePart, "\t"))
 		}
 
 		if strings.HasPrefix(codePart, " ") {
@@ -128,7 +137,7 @@ func Clean(folder, fileName string) error {
 }
 
 func main() {
-	dirPath := os.Args[1]
+	dirPath := "C:\\Users\\19081126D\\Downloads\\testing" //os.Args[1]
 
 	entries, err := os.ReadDir(dirPath)
 	if err != nil {
