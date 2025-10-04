@@ -4,7 +4,12 @@ on:
     # # Sequence of patterns matched against refs/tags
     # tags:
     #   - 'v*' # Push events to matching v*, i.e. v1.0, v20.15.10
-      
+
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+  
 permissions:
     contents: write
     
@@ -29,7 +34,10 @@ jobs:
         run: |
           .\setup.cmd
       
-      
+      - shell: cmd
+        run: |
+          .\local-build.cmd
+          
       - name: Archive Release
         uses: thedoctor0/zip-release@master
         with:
