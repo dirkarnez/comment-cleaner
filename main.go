@@ -3,48 +3,113 @@
 package main
 
 import (
+	"bufio"
 	"fmt"
+	"log"
+	"os"
+	"path/filepath"
 	"strings"
 )
 
-func pushCommentToRight(code string, width int) string {
-	// Split the code into lines
-	lines := strings.Split(code, "\n")
-	var result []string
+func pushCommentToRight(line string, width int) string {
+	// Trim the line to remove leading/trailing spaces
+	trimmedLine := strings.TrimSpace(line)
 
-	for _, line := range lines {
-		// Trim the line to remove leading/trailing spaces
-		trimmedLine := strings.TrimSpace(line)
+	// Check if the line contains a comment
+	if idx := strings.Index(trimmedLine, "//"); idx != -1 {
+		// Split the line into code and comment
+		codePart := strings.TrimRight(trimmedLine[:idx], "\t")
+		commentPart := trimmedLine[idx:]
 
-		// Check if the line contains a comment
-		if idx := strings.Index(trimmedLine, "//"); idx != -1 {
-			// Split the line into code and comment
-			codePart := trimmedLine[:idx]
-			commentPart := trimmedLine[idx:]
-
-			// Calculate the spaces needed to push the comment to the right
-			lineLength := len(codePart)
-			if lineLength < width {
-				spacesNeeded := width - lineLength
-				codePart = fmt.Sprintf("%s%s", codePart, strings.Repeat(" ", spacesNeeded))
-			}
-
-			// Combine the code part and the comment part
-			result = append(result, fmt.Sprintf("%s %s", codePart, commentPart))
-		} else {
-			// If there's no comment, keep the line as is
-			result = append(result, line)
+		// Calculate the spaces needed to push the comment to the right
+		lineLength := len(codePart)
+		if lineLength < width {
+			spacesNeeded := width - lineLength
+			codePart = fmt.Sprintf("%s%s", codePart, strings.Repeat(" ", spacesNeeded))
 		}
+
+		// Combine the code part and the comment part
+		return fmt.Sprintf("%s %s", codePart, commentPart)
+	} else {
+		return line
+	}
+}
+
+func Clean(folder, fileName string) error {
+	fullPath := filepath.Join(folder, fileName)
+	fmt.Println(fullPath)
+
+	file, err := os.Open(fullPath)
+	if err != nil {
+		return err
 	}
 
-	// Join the processed lines back together
-	return strings.Join(result, "\n")
+	defer file.Close()
+
+	outputFile, err := os.Create(filepath.Join(folder, fmt.Sprintf("%s.new", fileName)))
+	if err != nil {
+		return err
+	}
+
+	defer outputFile.Close()
+
+	scanner := bufio.NewScanner(file)
+	w := bufio.NewWriter(outputFile)
+
+	commentBlockDetected := false
+	commentBlockStartDetected := false
+	commentBlockEndDetected := false
+
+	var done string
+	for scanner.Scan() {
+		code := scanner.Text()
+		if strings.HasPrefix(code, "//=") || strings.HasPrefix(code, "//*") || strings.HasPrefix(code, "/**") || strings.HasPrefix(code, "//-") {
+			commentBlockDetected = true
+
+			if commentBlockStartDetected {
+				commentBlockEndDetected = true
+			}
+
+			if !commentBlockStartDetected && !commentBlockEndDetected {
+				commentBlockStartDetected = true
+			}
+		} else {
+			if commentBlockStartDetected && commentBlockEndDetected {
+				commentBlockDetected = false
+				commentBlockStartDetected = false
+				commentBlockEndDetected = false
+			}
+		}
+
+		if commentBlockDetected {
+			done = code
+		} else {
+			done = pushCommentToRight(code, 80)
+		}
+
+		fmt.Println(done)
+		fmt.Fprintln(w, done)
+	}
+
+	err = w.Flush()
+	if err != nil {
+		return err
+	}
+
+	return scanner.Err()
 }
 
 func main() {
-	const commentWidth = 80
+	dirPath := os.Args[1]
 
-	// Process the code
-	processedCode := pushCommentToRight("Hello, 世界 // 45", commentWidth)
-	fmt.Println(processedCode)
+	entries, err := os.ReadDir(dirPath)
+	if err != nil {
+		log.Fatalf("Error reading directory: %v", err)
+	}
+
+	for _, entry := range entries {
+		if !entry.IsDir() {
+			Clean(dirPath, entry.Name())
+		}
+	}
 }
