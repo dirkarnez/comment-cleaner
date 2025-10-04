@@ -20,6 +20,7 @@ func pushCommentToRight(line string, width int) string {
 	if idx := strings.Index(trimmedLine, "//"); idx != -1 {
 		// Split the line into code and comment
 		codePart := strings.TrimRight(trimmedLine[:idx], "\t")
+		codePart = strings.TrimRight(codePart, " ")
 		commentPart := trimmedLine[idx:]
 
 		lineLength := len(codePart)
@@ -28,7 +29,7 @@ func pushCommentToRight(line string, width int) string {
 			re := regexp.MustCompile("\t+")
 			tabPrefixOccurance := len(re.FindString(codePart))
 			// codePart = fmt.Sprintf("%s%s", strings.Repeat(" ", tabPrefixOccurance*4), strings.TrimLeft(codePart, "\t"))
-			lineLength = lineLength + (tabPrefixOccurance * 3)
+			lineLength = lineLength + (tabPrefixOccurance * 7)
 		}
 
 		if strings.HasPrefix(codePart, " ") {
@@ -37,7 +38,7 @@ func pushCommentToRight(line string, width int) string {
 			if spacePrefixOccurance%4 == 0 {
 				numberOfTabs := int(spacePrefixOccurance / 4)
 				codePart = fmt.Sprintf("%s%s", strings.Repeat("\t", numberOfTabs), strings.TrimLeft(codePart, " "))
-				lineLength = lineLength - spacePrefixOccurance + (numberOfTabs * 4)
+				lineLength = lineLength - spacePrefixOccurance + (numberOfTabs * 8)
 			}
 		}
 
@@ -49,6 +50,15 @@ func pushCommentToRight(line string, width int) string {
 		// Combine the code part and the comment part
 		return fmt.Sprintf("%s %s", codePart, commentPart)
 	} else {
+		if strings.HasPrefix(line, " ") {
+			re := regexp.MustCompile(`\s+`)
+			spacePrefixOccurance := len(re.FindString(line))
+			if spacePrefixOccurance%4 == 0 {
+				numberOfTabs := int(spacePrefixOccurance / 4)
+				line = fmt.Sprintf("%s%s", strings.Repeat("\t", numberOfTabs), strings.TrimLeft(line, " "))
+			}
+		}
+
 		return line
 	}
 }
