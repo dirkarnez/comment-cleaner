@@ -1,11 +1,15 @@
 @echo off
 
-set GOROOT=%USERPROFILE%\Downloads\go1.21.0.windows-amd64\go
-set GOPATH=%USERPROFILE%\Downloads\gopath
+set DOWNLOADS_DIR=%USERPROFILE%\Downloads
+
+set GOROOT=%DOWNLOADS_DIR%\go1.21.0.windows-amd64\go
+set GOPATH=%DOWNLOADS_DIR%\gopath
+set GOBIN=%GOROOT%\bin
+
+@REM %USERPROFILE%\Downloads\PortableGit\bin;
 
 set PATH=^
-%USERPROFILE%\Downloads\PortableGit\bin;^
-%GOROOT%\bin;
+%WINDIR%\System32;^
+%GOBIN%;
 
 go build main.go &&^
-pause
