@@ -128,7 +128,7 @@ func Clean(folder, fileName string) error {
 }
 
 func main() {
-	dirPath := "C:\\Users\\19081126D\\Downloads\\testing" // os.Args[1]
+	dirPath := os.Args[1]
 
 	entries, err := os.ReadDir(dirPath)
 	if err != nil {
