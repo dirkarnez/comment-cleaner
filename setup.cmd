@@ -19,5 +19,17 @@ if exist %CLANG_FORMAT_EXE% (
     echo clang-format %CLANG_FORMAT_EXE% found
 )
 
-cd /d "%DOWNLOADS_DIR%" &&^
-dir /s
+set GO_DIR=%DOWNLOADS_DIR%\go1.25.0.windows-amd64
+set GOROOT=%GO_DIR%\go
+set GO_EXE=%GOROOT%\bin\go.exe
+
+if not exist %GO_EXE% (
+cd /d "%TEMP%" &&^
+%SystemRoot%\System32\curl.exe "https://go.dev/dl/go1.25.0.windows-amd64.zip" -L -O  &&^
+%SEVENZIP% x go1.25.0.windows-amd64.zip -o"%GO_DIR%"  &&^
+del go1.25.0.windows-amd64.zip
+)
+
+if exist %GO_EXE% (
+    echo go %GO_EXE% found
+)
