@@ -112,7 +112,7 @@ func Clean(folder, fileName string) error {
 		if commentBlockDetected {
 			done = code
 		} else {
-			done = pushCommentToRight(code, 80)
+			done = pushCommentToRight(code, 88)
 		}
 
 		fmt.Println(done)
