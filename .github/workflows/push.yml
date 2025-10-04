@@ -34,7 +34,10 @@ jobs:
         uses: thedoctor0/zip-release@master
         with:
           type: 'zip'
-          path: ${{ github.event.repository.name }}*
+          path: |
+            ${{ github.event.repository.name }}*
+            .clang-format
+            clang-format.exe
           filename: "${{ github.event.repository.name }}-${{ github.ref_name }}-${{ matrix.os }}.zip"
           
       - name: Release prebuilt
