@@ -8,12 +8,13 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"regexp"
 	"strings"
 )
 
 func pushCommentToRight(line string, width int) string {
 	// Trim the line to remove leading/trailing spaces
-	trimmedLine := strings.TrimSpace(line)
+	trimmedLine := line // strings.TrimSpace(line)
 
 	// Check if the line contains a comment
 	if idx := strings.Index(trimmedLine, "//"); idx != -1 {
@@ -21,8 +22,25 @@ func pushCommentToRight(line string, width int) string {
 		codePart := strings.TrimRight(trimmedLine[:idx], "\t")
 		commentPart := trimmedLine[idx:]
 
-		// Calculate the spaces needed to push the comment to the right
 		lineLength := len(codePart)
+
+		if strings.HasPrefix(codePart, "\t") {
+			re := regexp.MustCompile("\t+")
+			tabPrefixOccurance := len(re.FindString(codePart))
+			// codePart = fmt.Sprintf("%s%s", strings.Repeat(" ", tabPrefixOccurance*4), strings.TrimLeft(codePart, "\t"))
+			lineLength = lineLength + (tabPrefixOccurance * 3)
+		}
+
+		if strings.HasPrefix(codePart, " ") {
+			re := regexp.MustCompile(`\s+`)
+			spacePrefixOccurance := len(re.FindString(codePart))
+			if spacePrefixOccurance%4 == 0 {
+				numberOfTabs := int(spacePrefixOccurance / 4)
+				codePart = fmt.Sprintf("%s%s", strings.Repeat("\t", numberOfTabs), strings.TrimLeft(codePart, " "))
+				lineLength = lineLength - spacePrefixOccurance + (numberOfTabs * 4)
+			}
+		}
+
 		if lineLength < width {
 			spacesNeeded := width - lineLength
 			codePart = fmt.Sprintf("%s%s", codePart, strings.Repeat(" ", spacesNeeded))
@@ -100,7 +118,7 @@ func Clean(folder, fileName string) error {
 }
 
 func main() {
-	dirPath := os.Args[1]
+	dirPath := "C:\\Users\\19081126D\\Downloads\\testing" // os.Args[1]
 
 	entries, err := os.ReadDir(dirPath)
 	if err != nil {
