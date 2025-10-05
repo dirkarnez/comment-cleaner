@@ -7,9 +7,15 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"regexp"
 	"strings"
+)
+
+var (
+	clangFormatExePath string
+	clangStylePath     string
 )
 
 func pushCommentToRight(line string, width int) string {
@@ -70,6 +76,15 @@ func pushCommentToRight(line string, width int) string {
 
 		return line
 	}
+}
+
+func runClangFormat(folder, fileName string) error {
+	cmd := exec.Command(clangFormatExePath, fmt.Sprintf("--style=file:%s", clangStylePath), fmt.Sprintf("--files=%s", filepath.Join(folder, fileName)))
+	err := cmd.Run()
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 func Clean(folder, fileName string) error {
@@ -136,8 +151,75 @@ func Clean(folder, fileName string) error {
 	return scanner.Err()
 }
 
+func IsCXXFile(fileName string) bool {
+	// C language
+	for _, extension := range []string{".c", ".h"} {
+		if strings.HasSuffix(fileName, extension) {
+			return true
+		}
+	}
+
+	// C++ language
+	for _, extension := range []string{".C", ".cc", ".cpp", ".cxx", ".c++", ".hh", ".hpp", ".hxx", ".h++"} {
+		if strings.HasSuffix(fileName, extension) {
+			return true
+		}
+	}
+
+	return false
+}
+
+func GetClangFormatStylePath() (string, error) {
+	path, err := os.Executable()
+	if err != nil {
+		return "", err
+	}
+
+	clangStylePath := filepath.Join(filepath.Dir(path), ".clang-format")
+	_, err = os.Stat(clangStylePath)
+	if err != nil {
+		if os.IsNotExist(err) {
+			return "", fmt.Errorf(".clang-format cannot be found")
+		} else {
+			return "", fmt.Errorf(".clang-format cannot be accessed")
+		}
+	}
+
+	return clangStylePath, nil
+}
+
+func GetClangFormatExecutablePath() (string, error) {
+	path, err := os.Executable()
+	if err != nil {
+		return "", err
+	}
+
+	clangFormatPath := filepath.Join(filepath.Dir(path), "clang-format.exe")
+	_, err = os.Stat(clangFormatPath)
+	if err != nil {
+		if os.IsNotExist(err) {
+			return "", fmt.Errorf("clang-format.exe cannot be found")
+		} else {
+			return "", fmt.Errorf("clang-format.exe cannot be accessed")
+		}
+	}
+
+	return clangFormatPath, nil
+}
+
 func main() {
-	dirPath := "C:\\Users\\19081126D\\Downloads\\testing" //os.Args[1]
+	dirPath := "C:\\Users\\19081126D\\Downloads\\testing"
+	// dirPath := os.Args[1]
+	var err error = nil
+	clangFormatExePath, err = GetClangFormatExecutablePath()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	clangStylePath, err = GetClangFormatStylePath()
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	entries, err := os.ReadDir(dirPath)
 	if err != nil {
@@ -145,7 +227,7 @@ func main() {
 	}
 
 	for _, entry := range entries {
-		if !entry.IsDir() {
+		if !entry.IsDir() && IsCXXFile(entry.Name()) {
 			Clean(dirPath, entry.Name())
 		}
 	}

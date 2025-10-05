@@ -33,3 +33,5 @@ del go1.25.0.windows-amd64.zip
 if exist %GO_EXE% (
     echo go %GO_EXE% found
 )
+
+cd /d "%~dp0"
