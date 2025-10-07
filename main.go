@@ -18,6 +18,10 @@ var (
 	// clangStylePath     string
 )
 
+func queryFunctionDeclarations() map[string]int {
+	// [dirkarnez/libclang-experiments: Experiments with `libclang`](https://github.com/dirkarnez/libclang-experiments)
+}
+
 func insertMultiple() string {
 	// [dirkarnez/go-insert-strings-to-file-offset](https://github.com/dirkarnez/go-insert-strings-to-file-offset/tree/main)
 }
