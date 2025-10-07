@@ -18,6 +18,10 @@ var (
 	// clangStylePath     string
 )
 
+func insertMultiple() string {
+	// [dirkarnez/go-insert-strings-to-file-offset](https://github.com/dirkarnez/go-insert-strings-to-file-offset/tree/main)
+}
+
 func pushCommentToRight(line string, width int) string {
 	// Trim the line to remove leading/trailing spaces
 	trimmedLine := line // strings.TrimSpace(line)
