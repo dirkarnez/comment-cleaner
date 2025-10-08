@@ -18,6 +18,50 @@ var (
 	// clangStylePath     string
 )
 
+/*
+package main
+
+import (
+	"fmt"
+	"unsafe"
+)
+
+func CMatrix(rows, cols int) [][]byte {
+	r := make([][]byte, rows)
+	a := make([]byte, rows*cols)
+	start, end := 0, cols
+	for i := range r {
+		r[i] = a[start:end:end]
+		start, end = end, end+cols
+	}
+	return r
+}
+
+func CMatrixPtr(matrix [][]byte) *byte {
+	var p *byte
+	if len(matrix) > 0 && len(matrix[0]) > 0 {
+		p = (*byte)(unsafe.Pointer(&matrix[0][0]))
+	}
+	return p
+}
+
+func main() {
+	matrix := CMatrix(2, 3)
+	for i := range matrix {
+		for j := range matrix[i] {
+			matrix[i][j] = byte((i + 1) * (j + 1))
+		}
+	}
+	fmt.Println(&matrix[0][0], matrix)
+	matrixCPtr := CMatrixPtr(matrix)
+	fmt.Println(matrixCPtr, *matrixCPtr)
+	for i := 0; i < len(matrix)*len(matrix[0]); i++ {
+		matrixCPtr := (*byte)(unsafe.Pointer(uintptr(unsafe.Pointer(CMatrixPtr(matrix))) + uintptr(i)))
+		fmt.Println(matrixCPtr, *matrixCPtr)
+	}
+}
+
+*/
 func queryFunctionDeclarations() map[string]int {
 	// [dirkarnez/libclang-experiments: Experiments with `libclang`](https://github.com/dirkarnez/libclang-experiments)
 }
