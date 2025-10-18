@@ -63,6 +63,7 @@ func main() {
 
 */
 func queryFunctionDeclarations() map[string]int {
+	// [dirkarnez/libclang-go-playground](https://github.com/dirkarnez/libclang-go-playground)
 	// [dirkarnez/libclang-experiments: Experiments with `libclang`](https://github.com/dirkarnez/libclang-experiments)
 }
 
