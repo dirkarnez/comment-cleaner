@@ -15,6 +15,7 @@ set PATH=^
 %WINDIR%\System32;^
 %GOBIN%;
 
-go build main.go &&^
+go build main.go
+
 xcopy /H /Y /C "%CLANG_FORMAT_EXE%"
 
